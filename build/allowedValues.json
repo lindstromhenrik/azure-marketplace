@@ -234,16 +234,16 @@
     "Standard_A0", "Standard_A1"
   ],
   "locations" : {
-    "eastus": { "platformFaultDomainCount": 3 },
-    "eastus2": { "platformFaultDomainCount": 3 },
-    "centralus": { "platformFaultDomainCount": 3 },
-    "northcentralus": { "platformFaultDomainCount": 3 },
-    "southcentralus": { "platformFaultDomainCount": 3 },
+    "eastus": { "zones": ["1", "2", "3"] },
+    "eastus2": { "zones": ["1", "2", "3"] },
+    "centralus": { "zones": ["1", "2", "3"] },
+    "northcentralus": { "zones": ["1", "2", "3"] },
+    "southcentralus": { "zones": ["1", "2", "3"] },
 
-    "westus": { "platformFaultDomainCount": 3 },
+    "westus": { "zones": ["1", "2", "3"] },
 
-    "northeurope": { "platformFaultDomainCount": 3 },
-    "westeurope": { "platformFaultDomainCount": 3 }
+    "northeurope": { "zones": ["1", "2", "3"] },
+    "westeurope": { "zones": ["1", "2", "3"] }
   },
   "trackingGuids": {
     "marketplace": "pid-53DEEEE7-A572-4F07-99DC-151B67BB6F1F"

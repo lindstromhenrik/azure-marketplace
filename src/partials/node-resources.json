@@ -56,32 +56,32 @@
     "dataTemplateUrl": "[concat(parameters('templateBaseUrl'), 'machines/data-nodes-resources.json')]",
     "locations": {
       "eastus": {
-        "platformFaultDomainCount": 3
+        "zones": ["1", "2", "3"]
       },
       "eastus2": {
-        "platformFaultDomainCount": 3
+        "zones": ["1", "2", "3"]
       },
       "centralus": {
-        "platformFaultDomainCount": 3
+        "zones": ["1", "2", "3"]
       },
       "northcentralus": {
-        "platformFaultDomainCount": 3
+        "zones": ["1", "2", "3"]
       },
       "southcentralus": {
-        "platformFaultDomainCount": 3
+        "zones": ["1", "2", "3"]
       },
       "westus": {
-        "platformFaultDomainCount": 3
+        "zones": ["1", "2", "3"]
       },
       "northeurope": {
-        "platformFaultDomainCount": 3
+        "zones": ["1", "2", "3"]
       },
       "westeurope": {
-        "platformFaultDomainCount": 3
+        "zones": ["1", "2", "3"]
       }
     },
     "normalizedLocation": "[replace(toLower(parameters('commonVmSettings').location), ' ', '')]",
-    "platformFaultDomainCount": "[if(contains(variables('locations'), variables('normalizedLocation')), variables('locations')[variables('normalizedLocation')].platformFaultDomainCount, 2)]",
+    "zones": "[if(contains(variables('locations'), variables('normalizedLocation')), variables('locations')[variables('normalizedLocation')].zones, json('null'))]",
     "vmAcceleratedNetworking": [
       "Standard_D2_v2",
       "Standard_D3_v2",
@@ -173,7 +173,7 @@
           "vm": {
             "value": {
               "shared": "[parameters('commonVmSettings')]",
-              "namespace": "[concat(parameters('commonVmSettings').namespacePrefix, 'master-')]",
+              "namespace": "[concat(parameters('commonVmSettings').namespacePrefix, 'master')]",
               "installScript": "[parameters('osSettings').extensionSettings.master]",
               "size": "[parameters('topologySettings').vmSizeMasterNodes]",
               "storageAccountType": "Standard_LRS",
@@ -181,7 +181,7 @@
               "useBackendPools": "No",
               "backendPools": [],
               "imageReference": "[parameters('osSettings').imageReference]",
-              "platformFaultDomainCount": "[variables('platformFaultDomainCount')]",
+              "zones": "[variables('zones')]",
               "acceleratedNetworking": "[if(equals(parameters('topologySettings').vmMasterNodeAcceleratedNetworking, 'Default'), if(contains(variables('vmAcceleratedNetworking'), parameters('topologySettings').vmSizeMasterNodes), 'Yes', 'No'), parameters('topologySettings').vmMasterNodeAcceleratedNetworking)]"
             }
           },
@@ -210,7 +210,7 @@
           "vm": {
             "value": {
               "shared": "[parameters('commonVmSettings')]",
-              "namespace": "[concat(parameters('commonVmSettings').namespacePrefix, 'client-')]",
+              "namespace": "[concat(parameters('commonVmSettings').namespacePrefix, 'client')]",
               "installScript": "[parameters('osSettings').extensionSettings.client]",
               "size": "[parameters('topologySettings').vmSizeClientNodes]",
               "count": "[parameters('topologySettings').vmClientNodeCount]",
@@ -218,7 +218,7 @@
               "useBackendPools": "Yes",
               "backendPools": "[parameters('topologySettings').loadBalancerBackEndPools]",
               "imageReference": "[parameters('osSettings').imageReference]",
-              "platformFaultDomainCount": "[variables('platformFaultDomainCount')]",
+              "zones": "[variables('zones')]",
               "acceleratedNetworking": "[if(equals(parameters('topologySettings').vmClientNodeAcceleratedNetworking, 'Default'), if(contains(variables('vmAcceleratedNetworking'), parameters('topologySettings').vmSizeClientNodes), 'Yes', 'No'), parameters('topologySettings').vmClientNodeAcceleratedNetworking)]"
             }
           },
@@ -246,7 +246,7 @@
           "vm": {
             "value": {
               "shared": "[parameters('commonVmSettings')]",
-              "namespace": "[concat(parameters('commonVmSettings').namespacePrefix, 'data-')]",
+              "namespace": "[concat(parameters('commonVmSettings').namespacePrefix, 'data')]",
               "installScript": "[parameters('osSettings').extensionSettings.data]",
               "size": "[parameters('topologySettings').vmSizeDataNodes]",
               "storageAccountType": "[parameters('topologySettings').vmDataNodeStorageAccountType]",
@@ -254,7 +254,7 @@
               "useBackendPools": "Yes",
               "backendPools": "[parameters('topologySettings').dataLoadBalancerBackEndPools]",
               "imageReference": "[parameters('osSettings').imageReference]",
-              "platformFaultDomainCount": "[variables('platformFaultDomainCount')]",
+              "zones": "[variables('zones')]",
               "acceleratedNetworking": "[if(equals(parameters('topologySettings').vmDataNodeAcceleratedNetworking, 'Default'), if(contains(variables('vmAcceleratedNetworking'), parameters('topologySettings').vmSizeDataNodes), 'Yes', 'No'), parameters('topologySettings').vmDataNodeAcceleratedNetworking)]"
             }
           },

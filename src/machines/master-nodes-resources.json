@@ -30,52 +30,66 @@
   "resources": [
     {
       "apiVersion": "2017-12-01",
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[concat(variables('namespace'), 'av-set')]",
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "name": "[concat(variables('namespace'), '-vmss')]",
       "location": "[parameters('vm').shared.location]",
       "tags": {
         "provider": "[toUpper(parameters('elasticTags').provider)]"
       },
-      "properties": {
-        "platformUpdateDomainCount": 3,
-        "platformFaultDomainCount": "[parameters('vm').platformFaultDomainCount]"
-      },
       "sku": {
-        "name": "Aligned"
-      }
-    },
-    {
-      "name": "[concat(variables('namespace'), copyindex(), '-vm-creation')]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/availabilitySets/', variables('namespace'), 'av-set')]"
-      ],
-      "copy": {
-        "name": "[concat(variables('namespace'),'vm-creation-loop')]",
-        "count": "[parameters('vm').count]"
+        "name": "[parameters('vm').size]",
+        "capacity": "[parameters('vm').count]"
       },
+      "zones": "[parameters('vm').zones]",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), '/partials/vm.json')]",
-          "contentVersion": "1.0.0.0"
+        "upgradePolicy": {
+          "mode": "Manual"
         },
-        "parameters": {
-          "templateBaseUrl": {
-            "value": "[parameters('templateBaseUrl')]"
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "imageReference": "[parameters('vm').imageReference]",
+            "osDisk": {
+              "managedDisk": {
+                "storageAccountType": "[parameters('vm').storageAccountType]"
+              },
+              "caching": "ReadWrite",
+              "createOption": "FromImage"
+            }
           },
-          "vm": {
-            "value": "[parameters('vm')]"
+          "osProfile": {
+            "computerNamePrefix": "[variables('namespace')]",
+            "adminUsername": "[parameters('vm').shared.credentials.adminUsername]",
+            "adminPassword": "[parameters('vm').shared.credentials.password]"
           },
-          "availabilitySet": {
-            "value": "[concat(variables('namespace'), 'av-set')]"
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "[concat(variables('namespace'), '-nic-config')]",
+                "properties": {
+                  "primary": true,
+                  "enableAcceleratedNetworking": "[equals(parameters('vm').acceleratedNetworking, 'Yes')]",
+                  "ipConfigurations": [
+                    {
+                      "name": "ipconfig1",
+                      "properties": {
+                        "subnet": {
+                          "id": "[parameters('vm').shared.subnetId]"
+                        },
+                        "loadBalancerBackendAddressPools": "[parameters('vm').backendPools]"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           },
-          "index": {
-            "value": "[copyindex()]"
-          },
-          "elasticTags": {
-            "value": "[parameters('elasticTags')]"
+          "extensionProfile":{
+            "extensions": [
+              {
+                "name": "ElasticsearchInstall",
+                "properties": "[parameters('vm').installScript]"
+              }
+            ]
           }
         }
       }
